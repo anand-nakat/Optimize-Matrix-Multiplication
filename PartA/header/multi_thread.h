@@ -18,27 +18,39 @@ void *singleThreadCompute(void *a)
     int start = temp->startRow;
     int end = temp->endRow;
     assert(n >= 4 and n == (n & ~(n - 1)));
-    for (int rowA = start; rowA < end; rowA += 2)
-    {
-        for (int colB = 0; colB < n; colB += 2)
-        {
-            int sum = 0;
-            /*Iterate for Row*/
-            for (int iter = 0; iter < n; iter++)
-            {
-                sum += A[rowA * n + iter] * B[iter * n + colB];
-                sum += A[rowA * n + iter] * B[iter * n + (colB + 1)];
-                sum += A[(rowA + 1) * n + iter] * B[iter * n + colB];
-                sum += A[(rowA + 1) * n + iter] * B[iter * n + (colB + 1)];
-            }
 
-            // compute output indices
-            int rowC = rowA >> 1;
-            int colC = colB >> 1;
-            int indexC = rowC * (n >> 1) + colC;
-            C[indexC] = sum;
+    int rowsPerThread = n / MAX_THREADS;
+    int t = min(16, rowsPerThread); // Tile-Size
+
+    for (int i = start; i < end; i += t)
+    {
+        for (int k = 0; k < n; k += t)
+        {
+            for (int j = 0; j < n; j += t)
+            {
+
+                for (int rowA = i; rowA < i + t; rowA += 2)
+                {
+                    for (int colB = j; colB < j + t; colB += 2)
+                    {
+                        int rowC = rowA >> 1;
+                        int colC = colB >> 1;
+                        int indexC = rowC * (n >> 1) + colC;
+                        for (int iter = k; iter < k + t; iter++)
+                        {
+                            C[indexC] += A[rowA * n + iter] * B[iter * n + colB];
+                            C[indexC] += A[rowA * n + iter] * B[iter * n + (colB + 1)];
+                            C[indexC] += A[(rowA + 1) * n + iter] * B[iter * n + colB];
+                            C[indexC] += A[(rowA + 1) * n + iter] * B[iter * n + (colB + 1)];
+                        }
+
+                        // compute output indices
+                    }
+                }
+            }
         }
     }
+
     return NULL;
 }
 

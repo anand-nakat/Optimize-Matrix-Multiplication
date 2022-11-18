@@ -12,8 +12,8 @@ void singleThread(int N, int *matA, int *matB, int *output)
       for (int iter = 0; iter < N; iter++)
       {
         sum += matA[rowA * N + iter] * matB[iter * N + colB];
-        sum += matA[(rowA + 1) * N + iter] * matB[iter * N + colB];
         sum += matA[rowA * N + iter] * matB[iter * N + (colB + 1)];
+        sum += matA[(rowA + 1) * N + iter] * matB[iter * N + colB];
         sum += matA[(rowA + 1) * N + iter] * matB[iter * N + (colB + 1)];
       }
 

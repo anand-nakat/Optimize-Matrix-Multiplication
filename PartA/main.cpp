@@ -72,10 +72,10 @@ int main(int argc, char *argv[])
   reference(N, matA, matB, output_reference);
 
   // Execute reference program
-  // auto begin = TIME_NOW;
+  auto begin = TIME_NOW;
   // reference(N, matA, matB, output_reference);
-  // auto end = TIME_NOW;
-  // cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
+  auto end = TIME_NOW;
+  cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
   if (N <= 8)
   {
@@ -110,9 +110,9 @@ int main(int argc, char *argv[])
 
   // Execute single thread
   int *output_single = new int[(N >> 1) * (N >> 1)];
-  auto begin = TIME_NOW;
+  begin = TIME_NOW;
   singleThread(N, matA, matB, output_single);
-  auto end = TIME_NOW;
+  end = TIME_NOW;
   cout << "Single thread execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
   for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)

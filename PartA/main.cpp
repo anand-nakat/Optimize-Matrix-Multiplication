@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   auto end = TIME_NOW;
   cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
-  if (N <= 8)
+  if (N <= 16)
   {
     cerr << "matA: " << endl;
     for (int i = 0; i < (N); i++)

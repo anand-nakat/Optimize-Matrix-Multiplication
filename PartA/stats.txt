@@ -1,0 +1,14 @@
+Input matrix of size 16
+Reference execution time: 0.007 ms
+Single thread execution time: 0.007 ms
+Multi-threaded execution time: 0.203 ms
+
+Input matrix of size 4096
+Reference execution time: 683792 ms
+Single thread execution time: 713412 ms
+Multi-threaded execution time: 214763 ms
+
+Input matrix of size 8192
+Reference execution time: 5.51472e+06 ms
+Single thread execution time: 5.58199e+06 ms
+Multi-threaded execution time: 2.03278e+06  ms

@@ -24,16 +24,23 @@ void *singleThreadCompute(void *a)
         {
             int sum = 0;
             /*Iterate for Row*/
-            for (int iter = 0; iter < n; iter++)
+            __m256i res = _mm256_setzero_si256();
+            for (int iter = 0; iter < n; iter += 8)
             {
+                __m256i a_row = _mm256_loadu_si256((__m256i *)(A + rowA * n + iter));
+                __m256i a_row_plus_one = _mm256_loadu_si256((__m256i *)(A + (rowA + 1) * n + iter));
+                __m256i b_col = _mm256_loadu_si256((__m256i *)(B + colB * n + iter));
+                __m256i b_col_plus_one = _mm256_loadu_si256((__m256i *)(B + (colB + 1) * n + iter));
 
-                sum += A[rowA * n + iter] * B[colB * n + iter];
-                sum += A[rowA * n + iter] * B[(colB + 1) * n + iter];
-                sum += A[(rowA + 1) * n + iter] * B[colB * n + iter];
-                sum += A[(rowA + 1) * n + iter] * B[(colB + 1) * n + iter];
+                res += _mm256_mullo_epi32(a_row, b_col);
+                res += _mm256_mullo_epi32(a_row, b_col_plus_one);
+                res += _mm256_mullo_epi32(a_row_plus_one, b_col);
+                res += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
             }
+            int *a = (int *)&res;
+            for (int i = 0; i < 8; i++)
+                sum += a[i];
 
-            // compute output indices
             int rowC = rowA >> 1;
             int colC = colB >> 1;
             int indexC = rowC * (n >> 1) + colC;
@@ -49,7 +56,7 @@ void multiThread(int N, int *matA, int *matB, int *output)
     pthread_t th[MAX_THREADS];
     struct arg v[MAX_THREADS];
     int chunks = N / MAX_THREADS;
-    transpose(N, matB);
+
     // Initialize Global Variables
     n = N;
     A = matA;

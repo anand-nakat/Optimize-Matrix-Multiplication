@@ -14,7 +14,7 @@ void transpose(int N, int *matB)
 
 void singleThread(int N, int *matA, int *matB, int *output)
 {
-  assert(N >= 4 and N == (N & ~(N - 1)));
+  assert(N >= 8 and N == (N & ~(N - 1)));
   transpose(N, matB);
 
   for (int rowA = 0; rowA < N; rowA += 2)
@@ -35,11 +35,6 @@ void singleThread(int N, int *matA, int *matB, int *output)
         res += _mm256_mullo_epi32(a_row, b_col_plus_one);
         res += _mm256_mullo_epi32(a_row_plus_one, b_col);
         res += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
-
-        // sum += matA[rowA * N + iter] * matB[colB * N + iter];
-        // sum += matA[rowA * N + iter] * matB[(colB + 1) * N + iter];
-        // sum += matA[(rowA + 1) * N + iter] * matB[colB * N + iter];
-        // sum += matA[(rowA + 1) * N + iter] * matB[(colB + 1) * N + iter];
       }
       int *a = (int *)&res;
       for (int i = 0; i < 8; i++)

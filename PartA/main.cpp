@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
   // Execute reference program
   auto begin = TIME_NOW;
-  // reference(N, matA, matB, output_reference);
+  reference(N, matA, matB, output_reference);
   auto end = TIME_NOW;
   cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 

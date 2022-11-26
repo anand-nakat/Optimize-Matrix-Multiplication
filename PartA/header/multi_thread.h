@@ -26,10 +26,11 @@ void *singleThreadCompute(void *a)
             /*Iterate for Row*/
             for (int iter = 0; iter < n; iter++)
             {
-                sum += A[rowA * n + iter] * B[iter * n + colB];
-                sum += A[rowA * n + iter] * B[iter * n + (colB + 1)];
-                sum += A[(rowA + 1) * n + iter] * B[iter * n + colB];
-                sum += A[(rowA + 1) * n + iter] * B[iter * n + (colB + 1)];
+
+                sum += A[rowA * n + iter] * B[colB * n + iter];
+                sum += A[rowA * n + iter] * B[(colB + 1) * n + iter];
+                sum += A[(rowA + 1) * n + iter] * B[colB * n + iter];
+                sum += A[(rowA + 1) * n + iter] * B[(colB + 1) * n + iter];
             }
 
             // compute output indices
@@ -48,6 +49,7 @@ void multiThread(int N, int *matA, int *matB, int *output)
     pthread_t th[MAX_THREADS];
     struct arg v[MAX_THREADS];
     int chunks = N / MAX_THREADS;
+    transpose(N, matB);
     // Initialize Global Variables
     n = N;
     A = matA;

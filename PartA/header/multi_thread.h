@@ -1,6 +1,6 @@
 #include <pthread.h>
 
-#define MAX_THREADS 8
+#define MAX_THREADS 16
 // Create other necessary functions here
 int *A;
 int *B;
@@ -15,16 +15,19 @@ struct arg
 void *singleThreadCompute(void *a)
 {
     struct arg *temp = (struct arg *)a;
+    /*Get the Row limits of matA on which Thread should perform*/
     int start = temp->startRow;
     int end = temp->endRow;
-    assert(n >= 4 and n == (n & ~(n - 1)));
+
+    assert(n >= 8 and n == (n & ~(n - 1)));
     for (int rowA = start; rowA < end; rowA += 2)
     {
         for (int colB = 0; colB < n; colB += 2)
         {
             int sum = 0;
-            /*Iterate for Row*/
+            /*Initialize Result Vector with 0*/
             __m256i res = _mm256_setzero_si256();
+            /*Parallel computation on 8 elements, so increment by 8*/
             for (int iter = 0; iter < n; iter += 8)
             {
                 __m256i a_row = _mm256_loadu_si256((__m256i *)(A + rowA * n + iter));
@@ -37,6 +40,7 @@ void *singleThreadCompute(void *a)
                 res += _mm256_mullo_epi32(a_row_plus_one, b_col);
                 res += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
             }
+            /*Add all the elements of the Vector to get the result*/
             int *a = (int *)&res;
             for (int i = 0; i < 8; i++)
                 sum += a[i];
@@ -50,12 +54,16 @@ void *singleThreadCompute(void *a)
     return NULL;
 }
 
-// Fill in this function
+/*Note that transpose of matB is not required here as it's already computed in single_thread.h */
 void multiThread(int N, int *matA, int *matB, int *output)
 {
-    pthread_t th[MAX_THREADS];
-    struct arg v[MAX_THREADS];
-    int chunks = N / MAX_THREADS;
+    int threads = min(MAX_THREADS, N);
+    /*More Threads cause overhead for smaller N*/
+    if (N <= 16)
+        threads = 1;
+    pthread_t th[threads];
+    struct arg v[threads];
+    int chunks = N / threads;
 
     // Initialize Global Variables
     n = N;
@@ -63,7 +71,7 @@ void multiThread(int N, int *matA, int *matB, int *output)
     B = matB;
     C = output;
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    for (int i = 0; i < threads; i++)
     {
         v[i].startRow = i * chunks;
         v[i].endRow = (i + 1) * chunks;
@@ -73,7 +81,7 @@ void multiThread(int N, int *matA, int *matB, int *output)
         }
     }
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    for (int i = 0; i < threads; i++)
     {
         if (pthread_join(th[i], NULL) != 0)
         {

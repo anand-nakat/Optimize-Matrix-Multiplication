@@ -22,8 +22,12 @@ void singleThread(int N, int *matA, int *matB, int *output)
     for (int colB = 0; colB < N; colB += 2)
     {
       int sum = 0;
-      /*Iterate for Row*/
-      __m256i res = _mm256_setzero_si256();
+      int rowC = rowA >> 1;
+      int colC = colB >> 1;
+      int indexC = rowC * (N >> 1) + colC;
+      /*Initialize Result Vector with 0*/
+      __m256i result = _mm256_setzero_si256();
+      /*Parallel computation on 8 elements, so increment by 8*/
       for (int iter = 0; iter < N; iter += 8)
       {
         __m256i a_row = _mm256_loadu_si256((__m256i *)(matA + rowA * N + iter));
@@ -31,18 +35,16 @@ void singleThread(int N, int *matA, int *matB, int *output)
         __m256i b_col = _mm256_loadu_si256((__m256i *)(matB + (colB)*N + iter));
         __m256i b_col_plus_one = _mm256_loadu_si256((__m256i *)(matB + (colB + 1) * N + iter));
 
-        res += _mm256_mullo_epi32(a_row, b_col);
-        res += _mm256_mullo_epi32(a_row, b_col_plus_one);
-        res += _mm256_mullo_epi32(a_row_plus_one, b_col);
-        res += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
+        result += _mm256_mullo_epi32(a_row, b_col);
+        result += _mm256_mullo_epi32(a_row, b_col_plus_one);
+        result += _mm256_mullo_epi32(a_row_plus_one, b_col);
+        result += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
       }
-      int *a = (int *)&res;
+      /*Add all the elements of the Vector to get the result*/
+      int *tempArray = (int *)&result;
       for (int i = 0; i < 8; i++)
-        sum += a[i];
+        sum += tempArray[i];
 
-      int rowC = rowA >> 1;
-      int colC = colB >> 1;
-      int indexC = rowC * (N >> 1) + colC;
       output[indexC] = sum;
     }
   }

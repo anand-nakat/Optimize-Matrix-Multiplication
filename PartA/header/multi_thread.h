@@ -1,6 +1,6 @@
 #include <pthread.h>
 
-#define MAX_THREADS 8
+#define MAX_THREADS 16
 // Create other necessary functions here
 int *A;
 int *B;
@@ -15,58 +15,64 @@ struct arg
 void *singleThreadCompute(void *a)
 {
     struct arg *temp = (struct arg *)a;
+    /*Get the Row limits of matA on which Thread should perform*/
     int start = temp->startRow;
     int end = temp->endRow;
-    assert(n >= 4 and n == (n & ~(n - 1)));
 
-    int rowsPerThread = n / MAX_THREADS;
-    int t = min(16, rowsPerThread); // Tile-Size
-
-    for (int i = start; i < end; i += t)
+    assert(n >= 8 and n == (n & ~(n - 1)));
+    for (int rowA = start; rowA < end; rowA += 2)
     {
-        for (int k = 0; k < n; k += t)
+        for (int colB = 0; colB < n; colB += 2)
         {
-            for (int j = 0; j < n; j += t)
+            int sum = 0;
+            /*Initialize Result Vector with 0*/
+            __m256i res = _mm256_setzero_si256();
+            /*Parallel computation on 8 elements, so increment by 8*/
+            for (int iter = 0; iter < n; iter += 8)
             {
+                __m256i a_row = _mm256_loadu_si256((__m256i *)(A + rowA * n + iter));
+                __m256i a_row_plus_one = _mm256_loadu_si256((__m256i *)(A + (rowA + 1) * n + iter));
+                __m256i b_col = _mm256_loadu_si256((__m256i *)(B + colB * n + iter));
+                __m256i b_col_plus_one = _mm256_loadu_si256((__m256i *)(B + (colB + 1) * n + iter));
 
-                for (int rowA = i; rowA < i + t; rowA += 2)
-                {
-                    for (int colB = j; colB < j + t; colB += 2)
-                    {
-                        int rowC = rowA >> 1;
-                        int colC = colB >> 1;
-                        int indexC = rowC * (n >> 1) + colC;
-                        for (int iter = k; iter < k + t; iter++)
-                        {
-                            C[indexC] += A[rowA * n + iter] * B[iter * n + colB];
-                            C[indexC] += A[rowA * n + iter] * B[iter * n + (colB + 1)];
-                            C[indexC] += A[(rowA + 1) * n + iter] * B[iter * n + colB];
-                            C[indexC] += A[(rowA + 1) * n + iter] * B[iter * n + (colB + 1)];
-                        }
-
-                        // compute output indices
-                    }
-                }
+                res += _mm256_mullo_epi32(a_row, b_col);
+                res += _mm256_mullo_epi32(a_row, b_col_plus_one);
+                res += _mm256_mullo_epi32(a_row_plus_one, b_col);
+                res += _mm256_mullo_epi32(a_row_plus_one, b_col_plus_one);
             }
+            /*Add all the elements of the Vector to get the result*/
+            int *a = (int *)&res;
+            for (int i = 0; i < 8; i++)
+                sum += a[i];
+
+            int rowC = rowA >> 1;
+            int colC = colB >> 1;
+            int indexC = rowC * (n >> 1) + colC;
+            C[indexC] = sum;
         }
     }
 
     return NULL;
 }
 
-// Fill in this function
+/*Note that transpose of matB is not required here as it's already computed in single_thread.h */
 void multiThread(int N, int *matA, int *matB, int *output)
 {
-    pthread_t th[MAX_THREADS];
-    struct arg v[MAX_THREADS];
-    int chunks = N / MAX_THREADS;
+    int threads = min(MAX_THREADS, N);
+    /*More Threads cause overhead for smaller N*/
+    if (N <= 16)
+        threads = 1;
+    pthread_t th[threads];
+    struct arg v[threads];
+    int chunks = N / threads;
+
     // Initialize Global Variables
     n = N;
     A = matA;
     B = matB;
     C = output;
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    for (int i = 0; i < threads; i++)
     {
         v[i].startRow = i * chunks;
         v[i].endRow = (i + 1) * chunks;
@@ -76,7 +82,7 @@ void multiThread(int N, int *matA, int *matB, int *output)
         }
     }
 
-    for (int i = 0; i < MAX_THREADS; i++)
+    for (int i = 0; i < threads; i++)
     {
         if (pthread_join(th[i], NULL) != 0)
         {

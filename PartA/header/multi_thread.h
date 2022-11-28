@@ -58,35 +58,50 @@ void *singleThreadCompute(void *a)
 /*Note that transpose of matB is not required here as it's already computed in single_thread.h */
 void multiThread(int N, int *matA, int *matB, int *output)
 {
-    int threads = min(MAX_THREADS, N);
-    /*More Threads cause overhead for smaller N*/
-    if (N <= 16)
-        threads = 1;
-    pthread_t th[threads];
-    struct arg v[threads];
-    int chunks = N / threads;
-
-    // Initialize Global Variables
-    n = N;
-    A = matA;
-    B = matB;
-    C = output;
-
-    for (int i = 0; i < threads; i++)
+    int pid = getpid();
+    int cpid = fork();
+    if (cpid == 0)
     {
-        v[i].startRow = i * chunks;
-        v[i].endRow = (i + 1) * chunks;
-        if (pthread_create(&th[i], NULL, &singleThreadCompute, (void *)(v + i)) != 0)
-        {
-            perror("Failed to create Thread");
-        }
+        // child process .  Run your perf stat
+        char buf[500];
+        cout << "Child Process";
+        sprintf(buf, "perf stat -e L1-dcache-load-misses,LLC-load-misses,cycles -p %d", pid);
+        execl("/bin/sh", "sh", "-c", buf, NULL);
     }
-
-    for (int i = 0; i < threads; i++)
+    else
     {
-        if (pthread_join(th[i], NULL) != 0)
+        setpgid(cpid, 0);
+        int threads = min(MAX_THREADS, N);
+        /*More Threads cause overhead for smaller N*/
+        if (N <= 16)
+            threads = 1;
+        pthread_t th[threads];
+        struct arg v[threads];
+        int chunks = N / threads;
+
+        // Initialize Global Variables
+        n = N;
+        A = matA;
+        B = matB;
+        C = output;
+
+        for (int i = 0; i < threads; i++)
         {
-            perror("Failed to join Threads");
+            v[i].startRow = i * chunks;
+            v[i].endRow = (i + 1) * chunks;
+            if (pthread_create(&th[i], NULL, &singleThreadCompute, (void *)(v + i)) != 0)
+            {
+                perror("Failed to create Thread");
+            }
         }
+
+        for (int i = 0; i < threads; i++)
+        {
+            if (pthread_join(th[i], NULL) != 0)
+            {
+                perror("Failed to join Threads");
+            }
+        }
+        kill(-cpid, SIGINT);
     }
 }

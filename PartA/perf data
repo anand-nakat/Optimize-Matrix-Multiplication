@@ -1,0 +1,84 @@
+Input matrix of size 4096
+
+Reference:
+Performance counter stats for process id '14299':
+
+    34,505,455,137      L1-dcache-load-misses                                       
+    13,152,109,164      LLC-load-misses                                             
+ 2,551,501,471,574      cycles                                                      
+
+     644.603023906 seconds time elapsed
+
+Single thread:
+ Performance counter stats for process id '14299':
+
+     4,438,433,896      L1-dcache-load-misses                                       
+        43,619,820      LLC-load-misses                                             
+   108,549,733,529      cycles                                                      
+
+      27.311020615 seconds time elapsed
+
+Multi-threaded:
+ Performance counter stats for process id '14299':
+
+     4,461,178,813      L1-dcache-load-misses                                       
+        36,915,946      LLC-load-misses                                             
+   210,916,981,260      cycles                                                      
+
+       7.071742885 seconds time elapsed
+
+------------------------------------------------
+Input matrix of size 8192
+
+Reference:
+Performance counter stats for process id '15767':
+
+   301,097,682,635      L1-dcache-load-misses                                       
+   131,672,614,772      LLC-load-misses                                             
+21,875,623,456,027      cycles                                                      
+
+    5485.602899148 seconds time elapsed
+
+Single thread:
+ Performance counter stats for process id '14485':
+
+    35,605,353,818      L1-dcache-load-misses                                       
+       334,722,378      LLC-load-misses                                             
+   845,687,180,685      cycles                                                      
+
+     211.993352505 seconds time elapsed
+
+Multi-threaded:
+
+ Performance counter stats for process id '14485':
+
+    36,193,061,967      L1-dcache-load-misses                                       
+       330,460,676      LLC-load-misses                                             
+ 1,864,163,015,453      cycles                                                      
+
+      62.645904130 seconds time elapsed
+
+-----------------------------------------------
+Input matrix of size 16384
+
+Reference:
+
+Single thread:
+
+ Performance counter stats for process id '14817':
+
+   281,206,345,375      L1-dcache-load-misses                                       
+     2,704,246,456      LLC-load-misses                                             
+ 7,037,276,732,146      cycles                                                      
+
+    1764.219017404 seconds time elapsed
+
+Multi-threaded:
+
+ Performance counter stats for process id '14817':
+
+   284,801,274,948      L1-dcache-load-misses                                       
+     4,868,811,549      LLC-load-misses                                             
+15,316,604,745,908      cycles                                                      
+
+     524.265579813 seconds time elapsed

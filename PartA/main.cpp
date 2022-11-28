@@ -70,14 +70,28 @@ int main(int argc, char *argv[])
   // Untimed, warmup caches and TLB
   int *output_reference = new int[(N >> 1) * (N >> 1)];
   // reference(N, matA, matB, output_reference);
+  int pid = getpid();
+  int cpid = fork();
+  if (cpid == 0)
+  {
+    // child process .  Run your perf stat
+    char buf[500];
+    cout << "Child Process";
+    sprintf(buf, "perf stat -e L1-dcache-load-misses,LLC-load-misses,cycles -p %d", pid);
+    execl("/bin/sh", "sh", "-c", buf, NULL);
+  }
+  else
+  {
+    setpgid(cpid, 0);
+    // Execute reference program
+    auto begin = TIME_NOW;
+    reference(N, matA, matB, output_reference);
+    auto end = TIME_NOW;
+    cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
+    kill(-cpid, SIGINT);
+  }
 
-  // Execute reference program
-  auto begin = TIME_NOW;
-  reference(N, matA, matB, output_reference);
-  auto end = TIME_NOW;
-  cout << "Reference execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
-
-  if (N <= 16)
+  if (N <= 8)
   {
     cerr << "matA: " << endl;
     for (int i = 0; i < (N); i++)
@@ -110,22 +124,22 @@ int main(int argc, char *argv[])
 
   // Execute single thread
   int *output_single = new int[(N >> 1) * (N >> 1)];
-  begin = TIME_NOW;
+  auto begin = TIME_NOW;
   singleThread(N, matA, matB, output_single);
-  end = TIME_NOW;
+  auto end = TIME_NOW;
   cout << "Single thread execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
-  for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
-    if (output_single[i] != output_reference[i])
-    {
-      cout << "Mismatch at " << i << "\n";
-      exit(0);
-    }
+  // for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
+  //   if (output_single[i] != output_reference[i])
+  //   {
+  //     cout << "Mismatch at " << i << "\n";
+  //     exit(0);
+  //   }
 
   // Execute multi-thread
   int *output_multi = new int[(N >> 1) * (N >> 1)];
   begin = TIME_NOW;
-  // multiThread(N, matA, matB, output_multi);
+  multiThread(N, matA, matB, output_multi);
   end = TIME_NOW;
   cout << "Multi-threaded execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
@@ -137,5 +151,6 @@ int main(int argc, char *argv[])
   //   }
 
   input_file.close();
+
   return 0;
 }

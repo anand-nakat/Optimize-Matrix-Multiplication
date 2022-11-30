@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
   // Execute reference program
   auto begin = TIME_NOW;
-  int *output_reference = new int[N * (N >> 1)];
+  int *output_reference = new int[(N >> 1) * (N >> 1)];
   reference(N, matA, matB, output_reference);
   auto end = TIME_NOW;
   cout << "Reference Code done"

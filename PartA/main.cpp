@@ -69,7 +69,9 @@ int main(int argc, char *argv[])
 
   // Untimed, warmup caches and TLB
   int *output_reference = new int[(N >> 1) * (N >> 1)];
-  // reference(N, matA, matB, output_reference);
+  reference(N, matA, matB, output_reference);
+
+  /*To profile over the reference code*/
   int pid = getpid();
   int cpid = fork();
   if (cpid == 0)
@@ -129,12 +131,12 @@ int main(int argc, char *argv[])
   auto end = TIME_NOW;
   cout << "Single thread execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
-  // for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
-  //   if (output_single[i] != output_reference[i])
-  //   {
-  //     cout << "Mismatch at " << i << "\n";
-  //     exit(0);
-  //   }
+  for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
+    if (output_single[i] != output_reference[i])
+    {
+      cout << "Mismatch at " << i << "\n";
+      exit(0);
+    }
 
   // Execute multi-thread
   int *output_multi = new int[(N >> 1) * (N >> 1)];
@@ -143,12 +145,12 @@ int main(int argc, char *argv[])
   end = TIME_NOW;
   cout << "Multi-threaded execution time: " << (double)TIME_DIFF(std::chrono::microseconds, begin, end) / 1000.0 << " ms\n";
 
-  // for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
-  //   if (output_multi[i] != output_reference[i])
-  //   {
-  //     cout << "Mismatch at " << i << "\n";
-  //     exit(0);
-  //   }
+  for (int i = 0; i < ((N >> 1) * (N >> 1)); ++i)
+    if (output_multi[i] != output_reference[i])
+    {
+      cout << "Mismatch at " << i << "\n";
+      exit(0);
+    }
 
   input_file.close();
 

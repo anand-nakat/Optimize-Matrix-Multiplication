@@ -58,6 +58,7 @@ void *singleThreadCompute(void *a)
 /*Note that transpose of matB is not required here as it's already computed in single_thread.h */
 void multiThread(int N, int *matA, int *matB, int *output)
 {
+    /*To get perf profile stats over multiThread function*/
     int pid = getpid();
     int cpid = fork();
     if (cpid == 0)

@@ -1,3 +1,37 @@
+Input matrix of size 1024
+Reference execution time: 3076.33 ms
+
+ Performance counter stats for process id '21203':
+
+       453,454,161      L1-dcache-load-misses                                       
+           208,206      LLC-load-misses                                             
+    12,107,828,582      cycles                                                      
+
+       3.038128533 seconds time elapsed
+
+Single thread execution time: 424.658 ms
+
+ Performance counter stats for process id '21203':
+
+        33,647,452      L1-dcache-load-misses                                       
+            33,817      LLC-load-misses                                             
+     1,563,846,323      cycles                                                      
+
+       0.393711962 seconds time elapsed
+
+Multi-threaded execution time: 123.265 ms
+
+ Performance counter stats for process id '21203':
+
+        14,682,509      L1-dcache-load-misses                                       
+            34,465      LLC-load-misses                                             
+       904,471,635      cycles                                                      
+
+       0.047354414 seconds time elapsed
+
+
+----------------------------------------------------------
+
 Input matrix of size 4096
 
 Reference:

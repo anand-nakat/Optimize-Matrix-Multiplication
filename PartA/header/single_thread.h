@@ -16,6 +16,7 @@ void transpose(int N, int *matB)
 
 void singleThread(int N, int *matA, int *matB, int *output)
 {
+  /*To get perf profile stats over Single Thread function*/
   int pid = getpid();
   int cpid = fork();
   if (cpid == 0)

@@ -1,0 +1,77 @@
+Threads: 16
+
+8K: 
+Multi-threaded execution time: 76206.4 ms
+
+ Performance counter stats for process id '33716':
+
+    36,141,640,071      L1-dcache-load-misses                                       
+       291,511,932      LLC-load-misses                                             
+ 1,384,878,446,911      cycles 
+--------------------------------------------
+ 4K:
+Performance counter stats for process id '35911':
+
+     4,458,142,266      L1-dcache-load-misses                                       
+        33,669,921      LLC-load-misses                                             
+   169,462,400,934      cycles                                                      
+
+       9.217609206 seconds time elapsed
+
+ ____________________________________________________________
+
+Threads: 8
+
+8K:
+Multi-threaded execution time: 79693.7 ms
+Performance counter stats for process id '33821':
+
+    35,930,113,504      L1-dcache-load-misses                                       
+       283,805,951      LLC-load-misses                                             
+ 1,393,083,316,534      cycles     
+--------------------------------------
+ 4K:
+  Performance counter stats for process id '35666':
+
+     4,501,111,203      L1-dcache-load-misses                                       
+        34,664,027      LLC-load-misses                                             
+   174,024,546,735      cycles                                                      
+
+       9.956823139 seconds time elapsed
+____________________________________________________________
+Threads:4
+
+8K:
+Multi-threaded execution time: 94745.3 ms
+Performance counter stats for process id '34064':
+
+    36,151,027,335      L1-dcache-load-misses                                       
+       293,796,736      LLC-load-misses                                             
+   853,822,197,985      cycles   
+------------------------------------------------------
+4K:
+ Performance counter stats for process id '35504':
+
+     4,483,184,210      L1-dcache-load-misses                                       
+        26,050,429      LLC-load-misses                                             
+   104,819,849,714      cycles                                                      
+
+      11.477193342 seconds time elapsed
+____________________________________________________________
+Threads 12:
+
+8K:
+Multi-threaded execution time: 78587.9 ms
+Performance counter stats for process id '35050':
+
+    36,188,940,393      L1-dcache-load-misses                                       
+       303,112,327      LLC-load-misses                                             
+ 1,389,726,689,860      cycles
+-------------------------------------------------
+4K:
+ Performance counter stats for process id '35275':
+
+     4,463,407,605      L1-dcache-load-misses                                       
+        34,271,696      LLC-load-misses                                             
+   171,070,398,115      cycles         
+9.683319300 seconds time elapsed
